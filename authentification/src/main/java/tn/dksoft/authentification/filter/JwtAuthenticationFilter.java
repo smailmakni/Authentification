@@ -61,12 +61,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String jwtRefreshToken = JWT.create().withSubject(user.getUsername())
 				.withExpiresAt(new Date(System.currentTimeMillis() + JWTUtil.EXPIRE_REFRESH_TOKEN))
 				.withIssuer(request.getRequestURI().toString()).sign(algo1);
-		/*
-		 * Map<String, String> idToken = new HashMap<>(); idToken.put("access-token",
-		 * jwtAccessToken); idToken.put("refresh-token", jwtRefreshToken);
-		 * response.setContentType("application/json"); new
-		 * ObjectMapper().writeValue(response.getOutputStream(), idToken);
-		 */
+
+		Map<String, String> idToken = new HashMap<>();
+		idToken.put("access-token", jwtAccessToken);
+		idToken.put("refresh-token", jwtRefreshToken);
+		response.setContentType("application/json");
+		new ObjectMapper().writeValue(response.getOutputStream(), idToken);
+
 	}
 
 }

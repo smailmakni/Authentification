@@ -11,7 +11,7 @@ import tn.dksoft.authentification.service.RoleServiceImpl;
 import tn.dksoft.authentification.service.UserServiceImpl;
 
 @Controller
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:8080\"")
 @RequestMapping(value = "/", method = { RequestMethod.GET, RequestMethod.POST })
 public class HomeController {
 	@Autowired

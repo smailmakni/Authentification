@@ -65,7 +65,7 @@ public class SecurityConfig {
 
 		http.authorizeHttpRequests((req) -> req.requestMatchers("/delete").hasRole("admin"));
 
-		http.authorizeHttpRequests((authz) -> authz.anyRequest().permitAll());
+		http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated());
 
 		http.addFilter(new JwtAuthenticationFilter(
 				authenticationManager(http.getSharedObject(AuthenticationConfiguration.class))));
