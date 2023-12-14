@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "navbar.home",
+  "type": "java.lang.String",
+  "description": "A description for 'navbar.home'"
+}]}

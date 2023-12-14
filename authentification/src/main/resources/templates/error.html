@@ -1,0 +1,17 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	layout:decorate="template1.html">
+<head>
+	<title>Error page</title>
+	<meta charset="utf-8" />
+</head>
+
+<body>
+	<div layout:fragment="content">
+	<h1>Erreur de manipulation, merci de contacter l'admin </h1>
+	<h2>
+		<p th:utext="${errorMessage}">Error java.lang.NullPointerException</p>
+	</h2>
+	</div>
+</body>
+
+</html>
