@@ -60,11 +60,11 @@ public class AppUserController {
 	@PostMapping("/save")
 	/* @PostAuthorize("hasAuthority('admin')") */
 	public String save(@ModelAttribute AppUser appUser, Model model) {
-		List<AppRole> roleUser = new ArrayList<>();
-		for (AppRole appRole : roleServiceImpl.listRoles()) {
-			roleUser.add(appRole);
+		List<AppRole> appRole = new ArrayList<>();
+		for (AppRole aa : roleServiceImpl.listRoles()) {
+			appRole.add(aa);
 		}
-		model.addAttribute("rolefound", roleUser);
+		model.addAttribute("rolefound", appRole);
 
 		userServiceImpl.addNewUser(appUser);
 

@@ -8,6 +8,14 @@
 
 <body>
 
+	<div th:if="${param.error}" class="danger">
+		Invalid User Name or Password
+	</div>
+
+	<div th:if="${param.logout}" class="danger">
+		You have been logged out
+	</div>
+
 	<form th:action="@{/login}" method="post">
 		<div class="container-fluid d-flex align-items-center justify-content-center" style="height: 100vh;">
 			<div class="text-center">
@@ -43,10 +51,10 @@
 								<a href="#!">Forgot password?</a>
 							</div>
 						</div>
-						
+
 						<!-- Submit button -->
 						<a href="/"><input type="submit" class="btn btn-primary btn-block mb-4" value="Sign in" /></a>
-					
+
 						<!-- Register buttons -->
 						<div class="text-center">
 							<p>Not a member? <a href="#!">Register</a></p>

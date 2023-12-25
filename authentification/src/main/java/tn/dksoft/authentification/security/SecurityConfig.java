@@ -8,11 +8,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -20,12 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import tn.dksoft.authentification.entity.AppUser;
-import tn.dksoft.authentification.filter.JwtAuthenticationFilter;
-import tn.dksoft.authentification.filter.JwtAutorizationFilter;
 import tn.dksoft.authentification.service.UserServiceImpl;
 
 @Configuration
@@ -56,29 +51,65 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		AuthenticationManagerBuilder authenticationManagerBuilder = http
+				.getSharedObject(AuthenticationManagerBuilder.class);
+		authenticationManagerBuilder.userDetailsService(userDetailsService());
+		AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
+
 		http.csrf(AbstractHttpConfigurer::disable);
+
 		http.formLogin(Customizer.withDefaults());
 
-		http.authorizeHttpRequests((authz) -> authz
-				.requestMatchers(new AntPathRequestMatcher("/refreshToken/**", "/login/**")).permitAll());
-
-		http.authorizeHttpRequests((req) -> req.requestMatchers("/delete").hasRole("admin"));
+		/*
+		 * http.authorizeHttpRequests((authz) -> authz .requestMatchers(new
+		 * AntPathRequestMatcher("/refreshToken/**", "/login/**")).permitAll());
+		 * 
+		 * http.authorizeHttpRequests((req) ->
+		 * req.requestMatchers("/delete").hasRole("admin"));
+		 */
 
 		http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated());
 
-		http.addFilter(new JwtAuthenticationFilter(
-				authenticationManager(http.getSharedObject(AuthenticationConfiguration.class))));
-		http.addFilterBefore(new JwtAutorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.authenticationManager(authenticationManager);
+
+		/*
+		 * http.sessionManagement((session) ->
+		 * session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		 */
+
+		/*
+		 * http.formLogin(formLogin -> formLogin.loginPage("/login") .
+		 * successHandler(new AuthenticationSuccessHandler() {
+		 * 
+		 * @Override public void onAuthenticationSuccess(HttpServletRequest request,
+		 * HttpServletResponse response, Authentication authentication) throws
+		 * IOException, ServletException { System.out.println("********");
+		 * System.out.println("user connected " + authentication.getName());
+		 * UrlPathHelper helper = new UrlPathHelper(); String contextPath =
+		 * helper.getContextPath(request);
+		 * 
+		 * response.sendRedirect(contextPath);
+		 * 
+		 * } }). permitAll());
+		 */
+		/*
+		 * http.httpBasic((basic) -> basic.addObjectPostProcessor(new
+		 * ObjectPostProcessor<BasicAuthenticationFilter>() {
+		 * 
+		 * @Override public <O extends BasicAuthenticationFilter> O postProcess(O
+		 * filter) { filter.setSecurityContextRepository(new
+		 * HttpSessionSecurityContextRepository()); return filter; } }));
+		 */
+
+		/*
+		 * http.addFilter(new JwtAuthenticationFilter(
+		 * authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)
+		 * ))); http.addFilterBefore(new JwtAutorizationFilter(),
+		 * UsernamePasswordAuthenticationFilter.class);
+		 */
 
 		return http.build();
 
-	}
-
-	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-			throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
 	}
 
 }

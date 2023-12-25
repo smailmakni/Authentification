@@ -1,5 +1,5 @@
 /*
- * package tn.dksoft.authentification.controller;
+ * package tn.dksoft.authentification.security;
  * 
  * import org.springframework.beans.factory.annotation.Autowired; import
  * org.springframework.stereotype.Controller; import
@@ -13,17 +13,18 @@
  * @Controller
  * 
  * @RequestMapping(value = "/login", method = { RequestMethod.GET,
- * RequestMethod.POST }) public class LoginController {
+ * RequestMethod.POST }) public class SecurityController {
  * 
  * @Autowired private final UserServiceImpl userServiceImpl; private final
  * RoleServiceImpl roleServiceImpl;
  * 
- * public LoginController(UserServiceImpl userServiceImpl, RoleServiceImpl
+ * public SecurityController(UserServiceImpl userServiceImpl, RoleServiceImpl
  * roleServiceImpl) { super(); this.userServiceImpl = userServiceImpl;
  * this.roleServiceImpl = roleServiceImpl; }
  * 
+ * @GetMapping(value = "/login") public String login() { return "login"; }
  * 
- * @GetMapping public String Login() { return "login"; }
+ * @GetMapping(value = "/") public String home() { return "redirect:/home"; }
  * 
  * }
  */
