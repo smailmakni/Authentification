@@ -1,30 +1,56 @@
-/*
- * package tn.dksoft.authentification.security;
- * 
- * import org.springframework.beans.factory.annotation.Autowired; import
- * org.springframework.stereotype.Controller; import
- * org.springframework.web.bind.annotation.GetMapping; import
- * org.springframework.web.bind.annotation.RequestMapping; import
- * org.springframework.web.bind.annotation.RequestMethod;
- * 
- * import tn.dksoft.authentification.service.RoleServiceImpl; import
- * tn.dksoft.authentification.service.UserServiceImpl;
- * 
- * @Controller
- * 
- * @RequestMapping(value = "/login", method = { RequestMethod.GET,
- * RequestMethod.POST }) public class SecurityController {
- * 
- * @Autowired private final UserServiceImpl userServiceImpl; private final
- * RoleServiceImpl roleServiceImpl;
- * 
- * public SecurityController(UserServiceImpl userServiceImpl, RoleServiceImpl
- * roleServiceImpl) { super(); this.userServiceImpl = userServiceImpl;
- * this.roleServiceImpl = roleServiceImpl; }
- * 
- * @GetMapping(value = "/login") public String login() { return "login"; }
- * 
- * @GetMapping(value = "/") public String home() { return "redirect:/home"; }
- * 
- * }
- */
+
+package tn.dksoft.authentification.security;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(value = "/api/auth", method = { RequestMethod.GET, RequestMethod.POST })
+public class SecurityController {
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	@Autowired
+	private JwtEncoder jwtEncoder;
+
+	@GetMapping("/profile")
+	public Authentication authentication(Authentication authentication) {
+		return authentication;
+	}
+
+	@PostMapping("/login")
+	public Map<String, String> login(String username, String password) {
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+		Instant instant = Instant.now();
+		String scope = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+				.collect(Collectors.joining(" "));
+		System.out.println("*******" + scope + "******");
+		JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder().issuedAt(instant)
+				.expiresAt(instant.plus(10, ChronoUnit.MINUTES)).subject(username).claim("scope", scope).build();
+		JwtEncoderParameters jwtEncoderParameters = JwtEncoderParameters
+				.from(JwsHeader.with(MacAlgorithm.HS512).build(), jwtClaimsSet);
+		String jwt = jwtEncoder.encode(jwtEncoderParameters).getTokenValue();
+		System.out.println("*****************" + jwt + "******************");
+		return Map.of("access-token", jwt);
+	}
+
+}

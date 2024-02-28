@@ -29,7 +29,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import tn.dksoft.authentification.entity.AppRole;
+import tn.dksoft.authentification.dto.AppRoleDto;
+import tn.dksoft.authentification.dto.AppUserDto;
 import tn.dksoft.authentification.entity.AppUser;
 import tn.dksoft.authentification.security.JWTUtil;
 import tn.dksoft.authentification.service.RoleServiceImpl;
@@ -38,13 +39,17 @@ import tn.dksoft.authentification.service.UserServiceImpl;
 @Controller
 @RequestMapping(value = "/user", method = { RequestMethod.GET, RequestMethod.POST })
 public class AppUserController {
-	@Autowired
-	private final UserServiceImpl userServiceImpl;
-	private final RoleServiceImpl roleServiceImpl;
 
-	public AppUserController(UserServiceImpl userServiceImpl, RoleServiceImpl roleServiceImpl) {
-		super();
+	private UserServiceImpl userServiceImpl;
+	private RoleServiceImpl roleServiceImpl;
+
+	@Autowired
+	public void setUserServiceImpl(UserServiceImpl userServiceImpl) {
 		this.userServiceImpl = userServiceImpl;
+	}
+
+	@Autowired
+	public void setRoleServiceImpl(RoleServiceImpl roleServiceImpl) {
 		this.roleServiceImpl = roleServiceImpl;
 	}
 
@@ -60,8 +65,8 @@ public class AppUserController {
 	@PostMapping("/save")
 	/* @PostAuthorize("hasAuthority('admin')") */
 	public String save(@ModelAttribute AppUser appUser, Model model) {
-		List<AppRole> appRole = new ArrayList<>();
-		for (AppRole aa : roleServiceImpl.listRoles()) {
+		List<AppRoleDto> appRole = new ArrayList<>();
+		for (AppRoleDto aa : roleServiceImpl.listRoles()) {
 			appRole.add(aa);
 		}
 		model.addAttribute("rolefound", appRole);
@@ -88,8 +93,8 @@ public class AppUserController {
 	@GetMapping("/find")
 	/* @PostAuthorize("hasAuthority('user')") */
 	public String search(@RequestParam String search, Model model) {
-		List<AppUser> searchUser = new ArrayList<>();
-		for (AppUser appUser : userServiceImpl.listUsers()) {
+		List<AppUserDto> searchUser = new ArrayList<>();
+		for (AppUserDto appUser : userServiceImpl.listUsers()) {
 			if (appUser.getUserName().equalsIgnoreCase(search)) {
 				searchUser.add(appUser);
 			}
@@ -101,22 +106,28 @@ public class AppUserController {
 	@ResponseBody
 	/* @PostAuthorize("hasAuthority('admin')") */
 	@GetMapping("/json")
-	public List<AppUser> userJson() {
+	public List<AppUserDto> userJson() {
 		return userServiceImpl.listUsers();
 	}
 
 	@GetMapping("/edit")
 	/* @PostAuthorize("hasAuthority('admin')") */
 	public String edit(@RequestParam("id") Long id, Model model) {
-		AppUser appuser = userServiceImpl.findById(id);
-		List<AppRole> roleUser = new ArrayList<>();
-		for (AppRole appRole : roleServiceImpl.listRoles()) {
+
+		AppUserDto appuser = userServiceImpl.findById(id);
+		List<AppRoleDto> roleUser = new ArrayList<>();
+		for (AppRoleDto appRole : roleServiceImpl.listRoles()) {
 			roleUser.add(appRole);
 		}
 		model.addAttribute("rolefound", roleUser);
 		model.addAttribute("user", appuser);
-		Long roleId = appuser.getAppRole().get(0).getIdRole();
-		model.addAttribute("roleid", roleId);
+
+		if (appuser != null) {
+			appuser.getAppRole().forEach(appRole -> {
+				Long roleId = appuser.getId();
+				model.addAttribute("roleid", roleId);
+			});
+		}
 		return "edituser";
 	}
 

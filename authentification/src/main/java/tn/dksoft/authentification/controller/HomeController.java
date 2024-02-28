@@ -12,6 +12,7 @@ import tn.dksoft.authentification.service.UserServiceImpl;
 
 @Controller
 @RequestMapping(value = "/", method = { RequestMethod.GET, RequestMethod.POST })
+@CrossOrigin("*")
 public class HomeController {
 	@Autowired
 	private final UserServiceImpl userServiceImpl;

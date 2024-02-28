@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import tn.dksoft.authentification.dto.AppRoleDto;
 import tn.dksoft.authentification.entity.AppRole;
 import tn.dksoft.authentification.service.RoleServiceImpl;
 
@@ -56,8 +57,8 @@ public class AppRoleController {
 
 	@GetMapping("/find")
 	public String search(@RequestParam String search, Model model) {
-		List<AppRole> searchRole = new ArrayList<>();
-		for (AppRole appRole : roleServiceImpl.listRoles()) {
+		List<AppRoleDto> searchRole = new ArrayList<>();
+		for (AppRoleDto appRole : roleServiceImpl.listRoles()) {
 			if (appRole.getRoleName().equalsIgnoreCase(search)) {
 				searchRole.add(appRole);
 			}
@@ -68,13 +69,13 @@ public class AppRoleController {
 
 	@ResponseBody
 	@GetMapping("/json")
-	public List<AppRole> roleJson() {
+	public List<AppRoleDto> roleJson() {
 		return roleServiceImpl.listRoles();
 	}
 
 	@GetMapping("/edit")
 	public String edit(@RequestParam("idRole") Long idRole, Model model) {
-		AppRole appRole = roleServiceImpl.findRoleById(idRole);
+		AppRoleDto appRole = roleServiceImpl.findRoleById(idRole);
 		model.addAttribute("role", appRole);
 		return "editrole";
 	}

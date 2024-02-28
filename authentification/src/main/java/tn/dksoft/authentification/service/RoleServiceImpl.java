@@ -1,13 +1,15 @@
 package tn.dksoft.authentification.service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import tn.dksoft.authentification.dto.AppRoleDto;
 import tn.dksoft.authentification.entity.AppRole;
-import tn.dksoft.authentification.exception.AppRoleNotFoundException;
+import tn.dksoft.authentification.exception.AppUserNotFoundException;
+import tn.dksoft.authentification.mappers.AppRoleMapper;
 import tn.dksoft.authentification.repository.AppRoleRepository;
 
 @Service
@@ -16,18 +18,24 @@ public class RoleServiceImpl implements RoleService {
 
 	private AppRoleRepository appRoleRepository;
 
-	public RoleServiceImpl(AppRoleRepository appRoleRepository) {
+	private AppRoleMapper appRoleMapper;
+
+	public RoleServiceImpl(AppRoleRepository appRoleRepository, AppRoleMapper appRoleMapper) {
 		super();
 		this.appRoleRepository = appRoleRepository;
+		this.appRoleMapper = appRoleMapper;
 	}
 
 	@Override
-	public List<AppRole> listRoles() {
-		return appRoleRepository.findAll();
+	public List<AppRoleDto> listRoles() {
+		List<AppRole> roles = appRoleRepository.findAll();
+		List<AppRoleDto> roleDto = roles.stream().map(role -> appRoleMapper.fromAppRole(role))
+				.collect(Collectors.toList());
+		return roleDto;
 	}
 
 	@Override
-	public List<AppRole> addNewRole(AppRole appRole) {
+	public List<AppRoleDto> addNewRole(AppRole appRole) {
 		if (appRole.getRoleName() != null) {
 			appRoleRepository.save(appRole);
 		}
@@ -35,18 +43,15 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public AppRole findRoleById(Long idRole) {
-		Optional<AppRole> roleOptional = this.appRoleRepository.findById(idRole);
-		return (AppRole) roleOptional.orElseThrow(() -> {
-			return new AppRoleNotFoundException("role Not Found with id=" + idRole.toString());
-		});
-
+	public AppRoleDto findRoleById(Long idRole) {
+		AppRole role = this.appRoleRepository.findById(idRole)
+				.orElseThrow(() -> new AppUserNotFoundException("Role Not Found with id=" + idRole.toString()));
+		return appRoleMapper.fromAppRole(role);
 	}
 
 	@Override
-	public List<AppRole> deleteById(Long idRole) {
+	public void deleteById(Long idRole) {
 		appRoleRepository.deleteById(idRole);
-		return listRoles();
 	}
 
 	@Override
@@ -55,8 +60,16 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public AppRole findRoleByRoleName(String roleName) {
-		return appRoleRepository.findByRoleName(roleName);
+	public AppRoleDto findRoleByRoleName(String roleName) {
+		AppRole appRole = appRoleRepository.findByRoleName(roleName);
+		return appRoleMapper.fromAppRole(appRole);
+	}
+
+	public AppRoleDto add(AppRole role) {
+
+		appRoleRepository.saveAndFlush(role);
+		AppRoleDto roleDto = appRoleMapper.fromAppRole(role);
+		return roleDto;
 	}
 
 }

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,8 +38,8 @@ public class AppUser implements Serializable {
 	private Long id;
 	private String userName;
 	private String email;
-	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
+
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
 	private List<AppRole> appRole = new ArrayList<>();

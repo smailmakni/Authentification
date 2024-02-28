@@ -2,18 +2,19 @@ package tn.dksoft.authentification.service;
 
 import java.util.List;
 
+import tn.dksoft.authentification.dto.AppRoleDto;
 import tn.dksoft.authentification.entity.AppRole;
 
 public interface RoleService {
-	List<AppRole> listRoles();
+	List<AppRoleDto> listRoles();
 
-	List<AppRole> addNewRole(AppRole appRole);
+	List<AppRoleDto> addNewRole(AppRole appRole);
 
-	AppRole findRoleById(Long idRole);
+	AppRoleDto findRoleById(Long idRole);
 
-	List<AppRole> deleteById(Long idRole);
+	void deleteById(Long idRole);
 
 	void deleteAll();
 
-	AppRole findRoleByRoleName(String roleName);
+	AppRoleDto findRoleByRoleName(String roleName);
 }

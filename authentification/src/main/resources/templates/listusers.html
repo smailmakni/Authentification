@@ -49,7 +49,9 @@
 			<td th:text="${user.userName}" />
 			<td th:text="${user.email}" />
 			<td th:text="${user.password}" />
-			<td><span th:each="role: ${user.appRole}" th:text="${role.roleName}"></span></td>
+			<td><ul th:each="role: ${user.appRole}" >
+				<li th:text="${role.roleName}"></li>
+			</ul></td>
 			<td><a th:href="'/user/delete/'+${user.id}"><i class="bi bi-trash3"></i></a></td>
 			<td>
 				<form th:action="@{/user/edit}" method="get">
